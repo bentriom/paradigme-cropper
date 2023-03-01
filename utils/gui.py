@@ -49,7 +49,7 @@ def get_default_cropped_image_name(image_path):
 
 def browse_image(input_image_path, input_image_visualizer, window_size):
     # Open image
-    file_image = filedialog.askopenfile(initialdir = "./", title = "Selection d'une image",
+    file_image = filedialog.askopenfile(initialdir = "./", title = "Sélection d'une image",
                                         filetypes = (("PNG files", "*.png"),
                                                      ("JPEG files", "*.jpg *.jpeg")))
     # Update label and visualisation
@@ -57,21 +57,20 @@ def browse_image(input_image_path, input_image_visualizer, window_size):
         input_image_path.set(file_image.name)
         resize_input_image(input_image_path, input_image_visualizer, window_size)
 
-def browse_output_dir(save_dir):
-    output_dir = filedialog.askdirectory(initialdir = "./", title = "Selection de dossier")
-    save_dir.set(output_dir)
+def browse_output_dir(input_image_path, save_path):
+    output_dir = filedialog.askdirectory(initialdir = "./", title = "Sélection de dossier")
+    output_image_name = get_default_cropped_image_name(input_image_path.get())
+    save_path.set(os.path.join(output_dir, output_image_name))
 
-def save_cropped_image(input_image_path, save_dir, is_saved):
+def save_cropped_image(input_image_path, save_path, is_saved):
     if (input_image_path.get() == ""):
-        pass
-    elif (save_dir.get() == ""):
+        is_saved.set(f"Choisissez une image à traiter et un dossier de sauvegarde.")
+    elif (save_path.get() == ""):
         is_saved.set(f"Choisissez un dossier de sauvegarde.")
-    elif not os.path.isdir(save_dir.get()):
-        is_saved.set(f"Dossier de sauvegarde inexisant: {save_dir.get()}.")
+    elif not os.path.isdir(os.path.dirname(save_path.get())):
+        is_saved.set(f"Dossier de sauvegarde inexisant: {save_path.get()}.")
     else:
         is_saved.set("Sauvegarde en cours...")
-        output_image_name = get_default_cropped_image_name(input_image_path.get())
-        output_image_path = os.path.join(save_dir.get(), output_image_name)
-        output_image = process_image(input_image_path.get(), output_image_path, save_image = True)
-        is_saved.set(f"L'image a été sauvegardé à: {save_dir.get()}.")
+        output_image = process_image(input_image_path.get(), save_path.get(), save_image = True)
+        is_saved.set(f"L'image a été sauvegardé à: \n{save_path.get()}.")
 
