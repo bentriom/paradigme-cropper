@@ -18,7 +18,7 @@ def process_image(input_image_path, x_margin, y_margin, output_image_path = "", 
     return image_output
 
 def remove_background(input_image_path):
-    assert os.path.isfile(input_image_path), "Given input image is not a file"
+    assert os.path.isfile(input_image_path), f"Given input image is not a file: {input_image_path}"
     image_input = Image.open(input_image_path)
     image_output = rembg.remove(image_input)
 
