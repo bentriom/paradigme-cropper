@@ -1,4 +1,5 @@
 
+import tkinter as tk
 from tkinter import filedialog
 from PIL import ImageTk, Image
 from utils.image_processing import *
@@ -14,6 +15,7 @@ def resize_visualizer(event, window, input_image_path, frame_visualizer):
                 resize_input_image(input_image_path, input_image_visualizer, (window_width, window_height))
 
 ## Helpers for picture displays
+## Not helpful for now
 
 def get_visualized_image_size(image_size, window_size):
     window_width, window_height = window_size[0], window_size[1]
@@ -24,53 +26,65 @@ def get_visualized_image_size(image_size, window_size):
     return (new_width, new_height)
 
 def resize_input_image(input_image_path, input_image_visualizer, window_size):
-    if input_image_path.get() != "":
-        input_image = Image.open(input_image_path.get())
+    if input_image_path != "":
+        input_image = Image.open(input_image_path)
         input_image = input_image.resize(get_visualized_image_size(input_image.size, window_size))
         photo_input_image = ImageTk.PhotoImage(input_image)
         input_image_visualizer.configure(image = photo_input_image)
         input_image_visualizer.photo_image = photo_input_image
 
 def show_cropped_image(input_image_path, output_image_visualizer, window_size):
-    if input_image_path.get() != "":
-        output_image = process_image(input_image_path.get(), save_image = False)
+    if input_image_path != "":
+        output_image = process_image(input_image_path, save_image = False)
         output_image = output_image.resize(get_visualized_image_size(output_image.size, window_size))
         photo_output_image = ImageTk.PhotoImage(output_image)
         output_image_visualizer.configure(image = photo_output_image)
         output_image_visualizer.image = photo_output_image
 
-def get_default_cropped_image_name(image_path):
-        splitted_input_image_name = os.path.basename(image_path).split(".")
-        image_cropped_name = splitted_input_image_name[0] + "_cropped." + '.'.join(splitted_input_image_name[1:])
-
-        return image_cropped_name
-
 ## Helpers for image browsing / saving
 
-def browse_image(input_image_path, input_image_visualizer, window_size):
+def get_default_cropped_image_name(image_path):
+    splitted_input_image_name = os.path.basename(image_path).split(".")
+    # image_cropped_name = splitted_input_image_name[0] + "." + '.'.join(splitted_input_image_name[1:])
+    image_cropped_name = splitted_input_image_name[0] + ".png"
+
+    return image_cropped_name
+
+def browse_image(input_image_dir):
     # Open image
-    file_image = filedialog.askopenfile(initialdir = "./", title = "Sélection d'une image",
-                                        filetypes = (("PNG files", "*.png"),
-                                                     ("JPEG files", "*.jpg *.jpeg")))
+    input_dir = filedialog.askdirectory(initialdir = "./", title = "Sélection du dossier des images à cropper")
     # Update label and visualisation
-    if file_image is not None:
-        input_image_path.set(file_image.name)
-        resize_input_image(input_image_path, input_image_visualizer, window_size)
+    if input_dir is not None:
+        input_image_dir.set(input_dir)
 
-def browse_output_dir(input_image_path, save_path):
-    output_dir = filedialog.askdirectory(initialdir = "./", title = "Sélection de dossier")
-    output_image_name = get_default_cropped_image_name(input_image_path.get())
-    save_path.set(os.path.join(output_dir, output_image_name))
+def browse_output_dir(save_dir):
+    output_dir = filedialog.askdirectory(initialdir = "./", title = "Sélection du dossier de sauvegarde")
+    if output_dir is not None:
+        save_dir.set(output_dir)
 
-def save_cropped_image(input_image_path, save_path, is_saved):
-    if (input_image_path.get() == ""):
+def save_cropped_image(input_image_dir, x_margin, y_margin, save_dir, is_saved):
+    if (x_margin.get() < 0) or (y_margin.get() < 0):
+        tk.messagebox.showwarning(title = "Marges incorrectes",
+                                  message = "Les marges doivent être positives.")
+        is_saved.set("Changez les marges.")
+        return
+    if (input_image_dir.get() == ""):
         is_saved.set(f"Choisissez une image à traiter et un dossier de sauvegarde.")
-    elif (save_path.get() == ""):
+    elif (save_dir.get() == ""):
         is_saved.set(f"Choisissez un dossier de sauvegarde.")
-    elif not os.path.isdir(os.path.dirname(save_path.get())):
-        is_saved.set(f"Dossier de sauvegarde inexisant: {save_path.get()}.")
+    elif not os.path.isdir(os.path.dirname(save_dir.get())):
+        is_saved.set(f"Dossier de sauvegarde inexisant: {save_dir.get()}.")
+    elif input_image_dir.get() == save_dir.get():
+        tk.messagebox.showwarning(title = "Dossier de sauvegarde",
+                                  message = "Le dossier de sauvegarde est le même que celui d'entrée.")
+        is_saved.set(f"Choisissez un autre dossier de sauvegarde.")
     else:
         is_saved.set("Sauvegarde en cours...")
-        output_image = process_image(input_image_path.get(), save_path.get(), save_image = True)
-        is_saved.set(f"L'image a été sauvegardé à: \n{save_path.get()}.")
+        for input_image_name in os.listdir(input_image_dir.get()):
+            input_image_path = os.path.join(input_image_dir.get(), input_image_name)
+            output_image_name = get_default_cropped_image_name(input_image_path)
+            save_path = os.path.join(save_dir.get(), output_image_name)
+            output_image = process_image(input_image_path, x_margin.get(), y_margin.get(),
+                                         output_image_path = save_path, save_image = True)
+        is_saved.set(f"Les images ont été sauvegardées à: \n{save_dir.get()}.")
 
