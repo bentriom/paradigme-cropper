@@ -73,6 +73,9 @@ entry_show_save_dir.grid(row = 5, column = 0, padx = 10, sticky = "W")
 button_go_save.grid(row = 6, column = 0, padx = 10, pady = 10, sticky = "W")
 label_is_saved.grid(row = 7, column = 0, padx = 10, sticky = "W")
 
+# Error handling
+tk.Tk.report_callback_exception = show_error
+
 # window.bind("<Configure>", lambda event: resize_visualizer(event, window, input_image_dir, frame_visualizer))
 window.mainloop()
 

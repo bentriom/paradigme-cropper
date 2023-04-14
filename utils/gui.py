@@ -1,4 +1,5 @@
 
+import traceback
 import tkinter as tk
 from tkinter import filedialog
 from PIL import ImageTk, Image
@@ -13,6 +14,10 @@ def resize_visualizer(event, window, input_image_path, frame_visualizer):
             if input_image_path.get() != "":
                 input_image_visualizer = frame_visualizer.winfo_children()[0]
                 resize_input_image(input_image_path, input_image_visualizer, (window_width, window_height))
+
+def show_error(self, *args):
+    err = traceback.format_exception(*args)
+    tk.messagebox.showerror(title = "Python Exception", message = err)
 
 ## Helpers for picture displays
 ## Not helpful for now
