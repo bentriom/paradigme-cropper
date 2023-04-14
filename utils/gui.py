@@ -81,9 +81,11 @@ def save_cropped_image(input_image_dir, x_margin, y_margin, save_dir, is_saved):
     else:
         is_saved.set("Sauvegarde en cours...")
         for input_image_name in os.listdir(input_image_dir.get()):
-            input_image_path = os.path.join(input_image_dir.get(), input_image_name)
+            input_image_path = os.path.join(os.path.normcase(input_image_dir.get()), input_image_name)
+            if not os.path.isfile(input_image_path):
+                continue
             output_image_name = get_default_cropped_image_name(input_image_path)
-            save_path = os.path.join(save_dir.get(), output_image_name)
+            save_path = os.path.join(os.path.normcase(save_dir.get()), output_image_name)
             output_image = process_image(input_image_path, x_margin.get(), y_margin.get(),
                                          output_image_path = save_path, save_image = True)
         is_saved.set(f"Les images ont été sauvegardées à: \n{save_dir.get()}.")
