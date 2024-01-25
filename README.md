@@ -1,4 +1,3 @@
-# Paradigm Cropper
+# Paradigme Cropper
 
-Python app that crops pictures of clothes
-
+A Python app that crops pictures of clothes using AI.
